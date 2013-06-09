@@ -18,10 +18,19 @@ BaseService.prototype.getType = function() {
     return this._type;
 };
 
+/**
+ * Set the id for the service
+ *
+ * @param id
+ */
 BaseService.prototype.setId = function(id) {
     this._id = id;
 };
 
+/**
+ * Get the id for the service
+ * @returns {*}
+ */
 BaseService.prototype.getId = function() {
     return this._id;
 };

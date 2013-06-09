@@ -18,10 +18,11 @@ util.inherits(Mongoose, BaseService);
 
 /**
  * Initialize the mongoose connection
+ *
  * @param options
  * @returns {Q.promise}
  */
-Mongoose.prototype.initialize = function(options) {
+Mongoose.prototype.initialize = function(options, Logger) {
     var deferred = q.defer();
 
     options = options || {};
@@ -34,10 +35,12 @@ Mongoose.prototype.initialize = function(options) {
     var db = mongoose.connection;
 
     db.on('open', function() {
+        Logger.info('Mongoose - connected ' + options.host);
         deferred.resolve();
     });
 
     db.on('error', function(err) {
+        Logger.error('Mongoose - ' + err.toString());
         deferred.reject(err);
     });
 

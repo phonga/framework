@@ -25,6 +25,11 @@ Logger.TYPE = {
 
 util.inherits(Logger, BaseService);
 
+/**
+ * Initialize the logger
+ *
+ * @param options
+ */
 Logger.prototype.initialize = function(options) {
     var transport;
 
@@ -50,14 +55,33 @@ Logger.prototype.initialize = function(options) {
     this._disabled = options.disabled;
 };
 
+/**
+ * Log an info
+ *
+ * @param message
+ * @param meta
+ */
 Logger.prototype.info = function(message, meta) {
     this.log('info', message, meta);
 };
 
+/**
+ * Log an error
+ *
+ * @param message
+ * @param meta
+ */
 Logger.prototype.error = function(message, meta) {
     this.log('error', message, meta);
 };
 
+/**
+ * Default log method
+ *
+ * @param type
+ * @param message
+ * @param meta
+ */
 Logger.prototype.log = function(type, message, meta) {
     if (!this._disabled) {
         if (!_.isUndefined(meta)) {

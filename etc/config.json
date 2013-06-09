@@ -1,10 +1,6 @@
 {
     "services": [
         {
-            "id":   "Logger",
-            "type": "Logger"
-        },
-        {
             "id":   "Mongoose",
             "type": "Mongoose",
             "options": {

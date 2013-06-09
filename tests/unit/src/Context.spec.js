@@ -17,6 +17,10 @@ describe('Context Test Suite', function() {
             directory: {
                 service: Context.__base() + 'tests/mock/services'
             },
+            logger: {
+                id: 'logger',
+                type: 'MockService'
+            },
             services: [
                 {
                     id:     'Mock',
@@ -54,7 +58,7 @@ describe('Context Test Suite', function() {
                 })
                 Context.load(config);
             }).to.throw();
-        })
+        });
     });
 
     describe('invoke tests', function() {
