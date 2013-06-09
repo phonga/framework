@@ -1,6 +1,4 @@
 var fs = require('fs');
-var logger = require('../common/logger'),
-    sprintf = require('sprintf').sprintf;
 
 /**
  * Require a route
@@ -8,16 +6,18 @@ var logger = require('../common/logger'),
  * @param file
  * @param app
  */
-var requireRoute = function(file, app) {
+var requireRoute = function(file, Context) {
     if (file.substr(file.lastIndexOf('.') + 1) !== 'js' || file.indexOf('helper') !== -1) {
         return;
     }
 
+    var logger = Context.get('Logger');
+
     var name = file.substr(0, file.indexOf('.'));
-    logger.info(logger.LOG_TYPE.ROUTE, sprintf('[%-10s] loaded', name));
+    logger.info(name + ' - loaded');
 
     // Load the route
-    require(file)(app);
+    require(file)(Context);
 };
 
 /**
@@ -26,7 +26,7 @@ var requireRoute = function(file, app) {
  * @param directory
  * @param app
  */
-var requireDirectory = function(directory, app) {
+var requireDirectory = function(directory, Context) {
     fs.readdirSync(directory).forEach(function(file) {
         if (file === "index.js") {
             return;
@@ -36,13 +36,13 @@ var requireDirectory = function(directory, app) {
 
         var stat = fs.lstatSync(location);
         if (stat.isDirectory()) {
-            requireDirectory(location, app);
+            requireDirectory(location, Context);
         } else if (stat.isFile()) {
-            requireRoute(location, app);
+            requireRoute(location, Context);
         }
     });
 };
 
-module.exports = function(app) {
-    requireDirectory(__dirname, app);
+module.exports = function(Context) {
+    requireDirectory(__dirname, Context);
 };

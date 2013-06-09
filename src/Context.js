@@ -12,10 +12,20 @@ var q   = require('q'),
 var Context = function() {
     this._serviceBaseDir = null;
     this._services = {};
+    this._app;
 
     this._commentsRegex = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
     this._functionArgsRegex = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
     this._functionArgSplit = /,/;
+};
+
+Context.prototype.setApp = function(app) {
+    this._services.app = app;
+    this._app = app;
+};
+
+Context.prototype.getApp = function() {
+    return this._app;
 };
 
 Context.prototype.loadFile = function(file) {
@@ -38,27 +48,7 @@ Context.prototype.load = function(config) {
 
     var defers = [];
     _.each(config.services, function(serviceConfig) {
-
-        this._checkServiceConfig(serviceConfig);
-
-        var servicePath = this._serviceBaseDir + '/' + serviceConfig.type + '.js';
-        if (!fs.existsSync(servicePath)) {
-            throw new Error('Undefined service type: ' + serviceConfig.type);
-        }
-
-        var klass = require(servicePath);
-        var service = new klass();
-        service.setId(serviceConfig.id);
-
-        serviceConfig.options = serviceConfig.options || {};
-        var defer = service.initialize(serviceConfig.options);
-
-        if (!_.isUndefined(defer) && !_.isNull(defer)) {
-            defers.push(defer);
-        }
-
-        this._services[serviceConfig.id] = service;
-
+        defers.push(this._loadService(serviceConfig));
     }, this);
 
 
@@ -83,15 +73,17 @@ Context.prototype.invoke = function(func, argObject) {
     _.each(args, function(arg) {
         arg = arg.trim();
 
-        if (argObject && argObject.hasOwnProperty(arg)) {
-            passedArgs.push(argObject[arg]);
-        } else {
-            var service = this.get(arg);
-            if (_.isNull(service)) {
-                throw new Error('Unable to find service ' + arg);
-            }
+        if (!_.isEmpty(arg)) {
+            if (argObject && argObject.hasOwnProperty(arg)) {
+                passedArgs.push(argObject[arg]);
+            } else {
+                var service = this.get(arg);
+                if (_.isNull(service)) {
+                    throw new Error('Unable to find service ' + arg);
+                }
 
-            passedArgs.push(service);
+                passedArgs.push(service);
+            }
         }
 
     }, this);
@@ -104,6 +96,33 @@ Context.prototype.invokeRequestHandler = function(func) {
     return function(req, resp) {
         self.invoke(func, {req: req, resp: resp});
     };
+};
+
+Context.prototype.invokeFunction = function(func) {
+    var self = this;
+    return function() {
+        self.invoke(func);
+    }
+};
+
+Context.prototype._loadService = function(serviceConfig) {
+    this._checkServiceConfig(serviceConfig);
+
+    var servicePath = this._serviceBaseDir + '/' + serviceConfig.type + '.js';
+    if (!fs.existsSync(servicePath)) {
+        throw new Error('Undefined service type: ' + serviceConfig.type);
+    }
+
+    var klass = require(servicePath);
+    var service = new klass();
+    service.setId(serviceConfig.id);
+
+    serviceConfig.options = serviceConfig.options || {};
+    var defer = service.initialize(serviceConfig.options);
+
+    this._services[serviceConfig.id] = service;
+
+    return defer;
 };
 
 Context.prototype._checkServiceConfig = function(serviceConfig) {

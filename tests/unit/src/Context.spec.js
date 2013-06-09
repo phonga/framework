@@ -81,6 +81,12 @@ describe('Context Test Suite', function() {
             }, {Mock: 'hello world'});
         });
 
+        it('should invoke a function without params', function(done) {
+            Context.invoke(function() {
+                done();
+            });
+        });
+
         it('should invoke a request handler function', function(done) {
             var func = Context.invokeRequestHandler(function(req, resp, Mock) {
                 expect(Mock).to.be.instanceOf(MockService);
@@ -90,7 +96,20 @@ describe('Context Test Suite', function() {
                 done();
             });
 
+            expect(typeof func).to.equal('function');
+
             func('hello', 'world');
+        });
+
+        it('should create an invokable function', function(done) {
+            var func = Context.invokeFunction(function(Mock) {
+                expect(Mock).to.be.instanceOf(MockService);
+                done();
+            });
+
+            expect(typeof func).to.equal('function');
+
+            func();
         });
 
         it('should throw an error for an unfound injection', function() {
