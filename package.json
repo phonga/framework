@@ -6,21 +6,25 @@
         "start": "node app"
     },
     "dependencies": {
-        "express":          "3.1.0",
-        "ejs":              "*",
+        "express":              "3.1.0",
+        "ejs":                  "*",
+        "passport":             "*",
+        "passport-facebook":    "*",
 
-        "grunt":            "*",
+        "grunt":                "*",
 
-        "underscore":       "*",
-        "winston":          "*",
-        "q":                "*",
-        "sprintf-js":       "*",
-        "moment":           "*",
-        "async":            "*",
+        "underscore":           "*",
+        "winston":              "*",
+        "q":                    "*",
+        "sprintf-js":           "*",
+        "moment":               "*",
+        "async":                "*",
 
-        "mongoose":         "*",
-        "redis":            "*",
+        "mongoose":             "*",
+        "redis":                "*",
 
-        "chai":             "*"
+        "facebook-node-sdk":    "*",
+
+        "chai":                 "*"
     }
 }

@@ -1,27 +1,5 @@
 
-/**
- * Module dependencies.
- */
-
-var cluster =       require('cluster'),
-    cpus =          require('os').cpus().length;
-
-
-if (cluster.isMaster) {
-    // Fork workers.
-    for (var i = 0; i < cpus; i++) {
-        cluster.fork();
-    }
-
-    cluster.on('exit', function(worker) {
-        console.log('Worker ' + worker.process.pid + ' died');
-    });
-
-    cluster.on('online', function(worker) {
-        console.log('Worker ' + worker.process.pid + ' online');
-    });
-
-} else {
+module.exports = function() {
 
     var express =       require('express'),
         http =          require('http'),
@@ -61,7 +39,6 @@ if (cluster.isMaster) {
     Context.loadFile(Context.__base() + '/etc/config.json')
         .then(fn)
         .fail(function(reason) {
-            console.log('Context Failed: ' + reason);
             process.abort();
         });
-}
+};
