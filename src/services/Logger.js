@@ -34,7 +34,7 @@ Logger.prototype.initialize = function(options) {
     var transport;
 
     options = options || {};
-    _.extend(options, {
+    _.defaults(options, {
         timestamp:  true,
         type:       Logger.TYPE.CONSOLE,
         disabled:   false

@@ -14,8 +14,12 @@
         "underscore":       "*",
         "winston":          "*",
         "q":                "*",
+        "sprintf-js":       "*",
+        "moment":           "*",
+        "async":            "*",
 
         "mongoose":         "*",
+        "redis":            "*",
 
         "chai":             "*"
     }

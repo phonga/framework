@@ -143,7 +143,7 @@ Context.prototype.invoke = function(func, argObject, bind) {
 
     }, this);
 
-    func.apply(bind || this, passedArgs);
+    return func.apply(bind || this, passedArgs);
 };
 
 /**

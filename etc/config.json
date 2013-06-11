@@ -6,6 +6,15 @@
             "options": {
                 "db":   "test"
             }
+        },
+        {
+            "id":   "Queue",
+            "type": "QueueManager",
+            "options": {
+                "queues": [
+                    "VIDEO"
+                ]
+            }
         }
     ]
 }
