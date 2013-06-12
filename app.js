@@ -4,6 +4,7 @@ module.exports = function() {
     var express =       require('express'),
         http =          require('http'),
         path =          require('path'),
+        Troll =         require('troll-opt').Troll,
         Context =       require('./src/Context');
 
     var app = express();
@@ -36,7 +37,13 @@ module.exports = function() {
                     }
             );
 
-    Context.loadFile(Context.__base() + '/etc/config.json')
+    var pkg = require('./package.json');
+
+    var opts = (new Troll()).options(function(troll) {
+        troll.opt('config', 'Configuration file', { short: 'c', default: 'etc/' + pkg.name.toLowerCase() + '.json' });
+    });
+
+    Context.loadFile(Context.__base() + opts.config)
         .then(fn)
         .fail(function(reason) {
             process.abort();
