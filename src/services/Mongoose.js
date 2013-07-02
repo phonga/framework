@@ -12,6 +12,8 @@ var Context =       require('../Context'),
  */
 var Mongoose = function() {
     BaseService.call(this, 'Mongoose');
+
+    this.connection = null;
 };
 
 util.inherits(Mongoose, BaseService);
@@ -32,14 +34,14 @@ Mongoose.prototype.initialize = function(options, Logger) {
         host:   'localhost'
     });
 
-    var db = mongoose.connection;
+    this.connection = mongoose.connection;
 
-    db.on('open', function() {
+    this.connection.on('open', function() {
         Logger.info('Mongoose - connected ' + options.host);
         deferred.resolve();
     });
 
-    db.on('error', function(err) {
+    this.connection.on('error', function(err) {
         Logger.error('Mongoose - ' + err.toString());
         deferred.reject(err);
     });
