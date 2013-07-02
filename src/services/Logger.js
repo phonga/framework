@@ -28,7 +28,7 @@ util.inherits(Logger, BaseService);
 /**
  * Initialize the logger
  *
- * @param options
+ * @param {Object} options
  */
 Logger.prototype.initialize = function(options) {
     var transport;
@@ -58,8 +58,8 @@ Logger.prototype.initialize = function(options) {
 /**
  * Log an info
  *
- * @param message
- * @param meta
+ * @param {String} message The message to log
+ * @param {Object} [meta] The meta data object
  */
 Logger.prototype.info = function(message, meta) {
     this.log('info', message, meta);
@@ -68,8 +68,8 @@ Logger.prototype.info = function(message, meta) {
 /**
  * Log an error
  *
- * @param message
- * @param meta
+ * @param {String} message The message to log
+ * @param {Object} [meta] The meta data object
  */
 Logger.prototype.error = function(message, meta) {
     this.log('error', message, meta);
@@ -78,9 +78,9 @@ Logger.prototype.error = function(message, meta) {
 /**
  * Default log method
  *
- * @param type
- * @param message
- * @param meta
+ * @param {String} type The type to log
+ * @param {String} message The message to log
+ * @param {Object} [meta] The meta data object
  */
 Logger.prototype.log = function(type, message, meta) {
     if (!this._disabled) {

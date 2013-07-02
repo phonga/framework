@@ -17,6 +17,12 @@ var Redis = function() {
 
 util.inherits(Redis, BaseService);
 
+/**
+ * Initialise the redis service
+ *
+ * @param {Object} options The options for the service
+ * @returns {Q.promise}
+ */
 Redis.prototype.initialize = function(options) {
     options = options || {};
 

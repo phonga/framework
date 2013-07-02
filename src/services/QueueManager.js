@@ -166,7 +166,7 @@ Queue.prototype.getQueueName = function() {
 /**
  * Publish a job on the queue
  *
- * @param job
+ * @param {Job} job The job to publish
  * @returns {Q.promise}
  */
 Queue.prototype.publish = function(job) {
@@ -225,7 +225,7 @@ Queue.prototype.listen = function() {
 /**
  * Get the job detail by id
  *
- * @param id
+ * @param {String} id The id for th ejob
  * @returns {Q.promise}
  */
 Queue.prototype.getJob = function(id) {
@@ -250,7 +250,7 @@ Queue.prototype.getJob = function(id) {
 /**
  * Set the job to completed
  *
- * @param job
+ * @param {Job} job The job to complete
  * @returns {Q.promise}
  */
 Queue.prototype.completeJob = function(job) {
@@ -260,7 +260,7 @@ Queue.prototype.completeJob = function(job) {
 /**
  * Set the job to failed
  *
- * @param job
+ * @param {Job} job The job to fail
  * @returns {Q.promise}
  */
 Queue.prototype.failJob = function(job) {
@@ -270,7 +270,7 @@ Queue.prototype.failJob = function(job) {
 /**
  * Set the job to processed
  *
- * @param job
+ * @param {Job} job The job to process
  * @returns {Q.promise}
  */
 Queue.prototype.processJob = function(job) {
@@ -280,8 +280,8 @@ Queue.prototype.processJob = function(job) {
 /**
  * Update the job status
  *
- * @param job
- * @param status
+ * @param {Job} job The job to update the status for
+ * @param {String} status The status to set on the job
  * @returns {Q.promise}
  */
 Queue.prototype.updateJobStatus = function(job, status) {
@@ -335,8 +335,8 @@ util.inherits(QueueManager, BaseService);
 /**
  * Initialize the QueueManager
  *
- * @param options
- * @param Logger
+ * @param {Object} options The options for the service
+ * @param {Logger} Logger The logger service
  * @returns {*}
  */
 QueueManager.prototype.initialize = function(options, Logger) {
@@ -364,7 +364,7 @@ QueueManager.prototype.initialize = function(options, Logger) {
 /**
  * Get the Queue by name
  *
- * @param queue
+ * @param {String} queue The queue name to get
  * @returns {*}
  */
 QueueManager.prototype.queue = function(queue) {

@@ -21,7 +21,7 @@ util.inherits(Mongoose, BaseService);
 /**
  * Initialize the mongoose connection
  *
- * @param options
+ * @param {Object} options The options for the service
  * @returns {Q.promise}
  */
 Mongoose.prototype.initialize = function(options, Logger) {
@@ -54,11 +54,11 @@ Mongoose.prototype.initialize = function(options, Logger) {
 /**
  * Create a mongoose model object
  *
- * @param name
- * @param schema
- * @param methods
- * @param statics
- * @returns {*}
+ * @param {String} name The name for the model
+ * @param {Object} schema The schema object
+ * @param {Object} [methods] The methods object
+ * @param {Object} [statics] The static methods object
+ * @returns {Mongoose.model} Mongoose model created from the schema
  */
 Mongoose.prototype.createModel = function(name, schema, methods, statics) {
     var s = mongoose.Schema(schema);
