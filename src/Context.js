@@ -22,7 +22,7 @@ var Context = function() {
 /**
  * Set the application for the context
  *
- * @param app
+ * @param {Object} app The application to set
  */
 Context.prototype.setApp = function(app) {
     this._services.app = app;
@@ -41,7 +41,7 @@ Context.prototype.getApp = function() {
 /**
  * Load a file configuration
  *
- * @param file
+ * @param {String} file The filename to load
  * @returns {*}
  */
 Context.prototype.loadFile = function(file) {
@@ -52,7 +52,7 @@ Context.prototype.loadFile = function(file) {
 /**
  * Load the configuration
  *
- * @param config
+ * @param {Object} config The config object to load
  * @returns {*}
  */
 Context.prototype.load = function(config) {
@@ -98,7 +98,7 @@ Context.prototype.load = function(config) {
 /**
  * Get a service or null if one has not been found
  *
- * @param id
+ * @param {String} id The service identifier to get
  * @returns {*}
  */
 Context.prototype.get = function(id) {
@@ -114,9 +114,9 @@ Context.prototype.get = function(id) {
  * will be injected, otherwise if not found in the service list or the argObject list
  * then an error is thrown.
  *
- * @param func
- * @param argObject
- * @param bind
+ * @param {Function} func The function to invoke
+ * @param {Object} [argObject] The argument object
+ * @param {Object} [bind] The binding object for the invoked function
  */
 Context.prototype.invoke = function(func, argObject, bind) {
     var fn = func.toString().replace(this._commentsRegex, '');
@@ -149,7 +149,7 @@ Context.prototype.invoke = function(func, argObject, bind) {
 /**
  * Provide an injectable invoke request handler method
  *
- * @param func
+ * @param {Function} func The function to wrap in another function
  * @returns {Function}
  */
 Context.prototype.invokeRequestHandler = function(func) {
@@ -162,7 +162,7 @@ Context.prototype.invokeRequestHandler = function(func) {
 /**
  * Provide an invokable function
  *
- * @param func
+ * @param {Function} func The function to wrap in another function
  * @returns {Function}
  */
 Context.prototype.invokeFunction = function(func) {
@@ -175,7 +175,7 @@ Context.prototype.invokeFunction = function(func) {
 /**
  * Load a service from the config, returns a promise.
  *
- * @param serviceConfig
+ * @param {Object} serviceConfig The service config
  * @returns {*}
  * @private
  */
@@ -207,7 +207,7 @@ Context.prototype._loadService = function(serviceConfig) {
  * Check the service config, if there is missing information it will
  * throw an error.
  *
- * @param serviceConfig
+ * @param {Object} serviceConfig
  * @private
  */
 Context.prototype._checkServiceConfig = function(serviceConfig) {
@@ -233,7 +233,7 @@ Context.prototype.__base = function() {
 /**
  * Get the source directory
  *
- * @param dir
+ * @param {String} dir The directory to wrap
  * @returns {string}
  * @private
  */
