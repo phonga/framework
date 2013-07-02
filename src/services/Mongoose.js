@@ -49,4 +49,27 @@ Mongoose.prototype.initialize = function(options, Logger) {
     return deferred.promise;
 };
 
+/**
+ * Create a mongoose model object
+ *
+ * @param name
+ * @param schema
+ * @param methods
+ * @param statics
+ * @returns {*}
+ */
+Mongoose.prototype.createModel = function(name, schema, methods, statics) {
+    var s = mongoose.Schema(schema);
+
+    if (methods) {
+        s.method(methods);
+    }
+
+    if (statics) {
+        s.static(statics);
+    }
+
+    return mongoose.model(name, s);
+};
+
 module.exports = Mongoose;
