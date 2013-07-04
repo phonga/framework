@@ -52,6 +52,28 @@ Mongoose.prototype.initialize = function(options, Logger) {
 };
 
 /**
+ * Create schema object for the schema defintion
+ *
+ * @param {Object} schema The schema object
+ * @param {Object} [methods] The methods object
+ * @param {Object} [statics] The static methods object
+ * @returns {*}
+ */
+Mongoose.prototype.createSchema = function(schema, methods, statics) {
+    var s = mongoose.Schema(schema);
+
+    if (methods) {
+        s.method(methods);
+    }
+
+    if (statics) {
+        s.static(statics);
+    }
+
+    return s;
+};
+
+/**
  * Create a mongoose model object
  *
  * @param {String} name The name for the model
@@ -61,14 +83,8 @@ Mongoose.prototype.initialize = function(options, Logger) {
  * @returns {Mongoose.model} Mongoose model created from the schema
  */
 Mongoose.prototype.createModel = function(name, schema, methods, statics) {
-    var s = mongoose.Schema(schema);
-
-    if (methods) {
-        s.method(methods);
-    }
-
-    if (statics) {
-        s.static(statics);
+    if (!(schema instanceof mongoose.Schema)) {
+        var s = this.createSchema(schema, methods, statics);
     }
 
     return mongoose.model(name, s);
