@@ -14,6 +14,7 @@ var Context = function() {
     this._services = {};
     this._config = {};
     this._app;
+    this._initialized = false;
 
     this._commentsRegex = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
     this._functionArgsRegex = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
@@ -55,8 +56,16 @@ Context.prototype.getApp = function() {
  * @returns {*}
  */
 Context.prototype.loadFile = function(file) {
-    var config = require(file);
-    return this.load(config);
+    if (!this._initialized) {
+        var config = require(file);
+        return this.load(config);
+    } else {
+        var deferred = q.defer();
+
+        deferred.resolve();
+
+        return deferred.promise;
+    }
 };
 
 /**
@@ -102,9 +111,20 @@ Context.prototype.load = function(config) {
         defers.push(this._loadService(serviceConfig));
     }, this);
 
+    var deferred = q.defer();
+
+    var self = this;
+    q.all(defers)
+        .then(function() {
+            self._initialized = false;
+            deferred.resolve();
+        })
+        .fail(function(reason) {
+            deferred.reject(reason);
+        });
 
     // Return a promise
-    return q.all(defers);
+    return deferred.promise;
 };
 
 /**
