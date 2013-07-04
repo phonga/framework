@@ -83,8 +83,9 @@ Mongoose.prototype.createSchema = function(schema, methods, statics) {
  * @returns {Mongoose.model} Mongoose model created from the schema
  */
 Mongoose.prototype.createModel = function(name, schema, methods, statics) {
+    var s = schema;
     if (!(schema instanceof mongoose.Schema)) {
-        var s = this.createSchema(schema, methods, statics);
+        s = this.createSchema(schema, methods, statics);
     }
 
     return mongoose.model(name, s);
