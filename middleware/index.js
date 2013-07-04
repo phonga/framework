@@ -7,11 +7,12 @@ var fs  =    require('fs'),
  * Timestamp: 7/4/13 7:57 PM
  */
 module.exports = function(Context) {
-    var files = fs.readdirSync('.');
-    _.each(files, function(file) {
-        var stat = fs.statSync(__dirname + '/' + file);
-        if (stat.isFile() && filename !== 'index.js') {
-            require(file)(Context);
-        }
+    Context.invoke(function(Logger) {
+        var middleware = Context.getConfig().middleware || [];
+
+        _.each(middleware, function(middle) {
+            Logger.info('Middleware Loader: loading ' + middle);
+            require(__dirname + '/' + middle)(Context);
+        });
     });
 };

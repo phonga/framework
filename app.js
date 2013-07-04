@@ -30,6 +30,8 @@ module.exports = function() {
                             app.use(express.errorHandler());
                         });
 
+                        require('./middleware/index')(Context);
+
                         http.createServer(app).listen(app.get('port'), function() {
                             require('./website/routes')(Context);
                             Logger.info('Worker server listening on port ' + app.get('port'));
@@ -46,6 +48,8 @@ module.exports = function() {
     Context.loadFile(Context.__base() + opts.config)
         .then(fn)
         .fail(function(reason) {
+            console.log(reason);
+            Context.get('Logger').error(reason, reason);
             process.abort();
         });
 };

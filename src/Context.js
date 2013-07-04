@@ -12,11 +12,21 @@ var q   = require('q'),
 var Context = function() {
     this._serviceBaseDir = null;
     this._services = {};
+    this._config = {};
     this._app;
 
     this._commentsRegex = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
     this._functionArgsRegex = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
     this._functionArgSplit = /,/;
+};
+
+/**
+ * Get the configuration information
+ *
+ * @returns {Object}
+ */
+Context.prototype.getConfig = function() {
+    return this._config;
 };
 
 /**
@@ -57,6 +67,8 @@ Context.prototype.loadFile = function(file) {
  */
 Context.prototype.load = function(config) {
     config = config || {};
+
+    this._config = config;
 
     // Set the defaults for the configuration
     _.defaults(config,
