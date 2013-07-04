@@ -116,7 +116,7 @@ Context.prototype.load = function(config) {
     var self = this;
     q.all(defers)
         .then(function() {
-            self._initialized = false;
+            self._initialized = true;
             deferred.resolve();
         })
         .fail(function(reason) {
