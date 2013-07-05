@@ -22,6 +22,9 @@ module.exports = function() {
                             app.use(express.methodOverride());
                             app.use(express.cookieParser('your secret here'));
                             app.use(express.session());
+
+                            require('./middleware/index')(Context);
+
                             app.use(app.router);
                             app.use(express.static(path.join(__dirname, '/website/public')));
                         });
@@ -29,8 +32,6 @@ module.exports = function() {
                         app.configure('development', function(){
                             app.use(express.errorHandler());
                         });
-
-                        require('./middleware/index')(Context);
 
                         http.createServer(app).listen(app.get('port'), function() {
                             require('./website/routes')(Context);
