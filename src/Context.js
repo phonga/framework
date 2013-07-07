@@ -30,6 +30,14 @@ Context.prototype.getConfig = function() {
     return this._config;
 };
 
+Context.prototype.clear = function() {
+    this._serviceBaseDir = null;
+    this._services = {};
+    this._config = {};
+    this._app;
+    this._initialized = false;
+};
+
 /**
  * Set the application for the context
  *
@@ -226,6 +234,8 @@ Context.prototype._loadService = function(serviceConfig) {
 
     // Get the options object
     serviceConfig.options = serviceConfig.options || {};
+    // Get the service id into the options
+    serviceConfig.options.serviceId = serviceConfig.id;
     // Invoke the initialize such that the Logger can be injected
     var defer = this.invoke(service.initialize, {options: serviceConfig.options}, service);
 

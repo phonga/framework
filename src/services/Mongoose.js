@@ -34,10 +34,10 @@ Mongoose.prototype.initialize = function(options, Logger) {
         host:   'localhost'
     });
 
-    this.connection = mongoose.connection;
+    this.connection = mongoose.createConnection();
 
     this.connection.on('open', function() {
-        Logger.info('Mongoose - connected ' + options.host);
+        Logger.info(options.serviceId + ' - connected ' + options.host);
         deferred.resolve();
     });
 
@@ -46,7 +46,11 @@ Mongoose.prototype.initialize = function(options, Logger) {
         deferred.reject(err);
     });
 
-    mongoose.connect(options.host, options.db, options.port);
+    this.connection.on('disconnected', function() {
+        Logger.error(options.serviceId + ' - disconnected');
+    });
+
+    this.connection.open(options.host, options.db, options.port, {auto_reconnect: true});
 
     return deferred.promise;
 };
@@ -88,7 +92,7 @@ Mongoose.prototype.createModel = function(name, schema, methods, statics) {
         s = this.createSchema(schema, methods, statics);
     }
 
-    return mongoose.model(name, s);
+    return this.connection.model(name, s);
 };
 
 module.exports = Mongoose;
