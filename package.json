@@ -19,7 +19,7 @@
         "sprintf-js":           "*",
         "moment":               "*",
         "async":                "*",
-        "troll-opt":            "*",
+        "commander":            "*",
 
         "mongoose":             "*",
         "redis":                "*",
