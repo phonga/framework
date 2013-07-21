@@ -18,6 +18,7 @@ module.exports = function() {
                             app.set('port', process.env.PORT || 3000);
                             app.set('views', __dirname + '/website/views');
                             app.set('view engine', 'ejs');
+                            app.use(express.compress());
                             app.use(express.favicon());
                             app.use(express.bodyParser());
                             app.use(express.methodOverride());
