@@ -1,5 +1,6 @@
-var fs  =    require('fs'),
-    _   =     require('underscore');
+var fs          = require('fs'),
+    _           = require('underscore'),
+    sprintf     = require('sprintf-js').sprintf;
 /**
  * Index reader module
  *
@@ -11,7 +12,7 @@ module.exports = function(Context) {
         var middleware = Context.getConfig().middleware || [];
 
         _.each(middleware, function(middle) {
-            Logger.info('Middleware Loader: loading ' + middle);
+            Logger.info(sprintf('%s loading %s', Logger.formatString('MIDDLEWARE'), middle));
             require(__dirname + '/' + middle)(Context);
         });
     });
