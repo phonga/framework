@@ -5,7 +5,8 @@ module.exports = function() {
         http =          require('http'),
         path =          require('path'),
         commander =     require('commander'),
-        Context =       require('./src/Context');
+        Context =       require('./src/Context'),
+        sprintf =       require('sprintf-js').sprintf;
 
     var app = express();
     Context.setApp(app);
@@ -35,7 +36,7 @@ module.exports = function() {
 
                         http.createServer(app).listen(app.get('port'), function() {
                             require('./website/routes')(Context);
-                            Logger.info('Worker server listening on port ' + app.get('port'));
+                            Logger.info(sprintf('%s Server listening [%d]', Logger.formatString('APP'), app.get('port')));
                         });
                     }
             );

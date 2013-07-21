@@ -3,7 +3,8 @@ var Context =       require('../Context'),
     util =          require('util'),
     q =             require('q'),
     _ =             require('underscore'),
-    mongoose =      require('mongoose');
+    mongoose =      require('mongoose'),
+    sprintf =       require('sprintf-js').sprintf;
 /**
  * Mongoose Service
  *
@@ -37,17 +38,17 @@ Mongoose.prototype.initialize = function(options, Logger) {
     this.connection = mongoose.createConnection();
 
     this.connection.on('open', function() {
-        Logger.info(options.serviceId + ' - connected ' + options.host);
+        Logger.info(sprintf('%s connected to %s', Logger.formatString(options.serviceId), options.host));
         deferred.resolve();
     });
 
     this.connection.on('error', function(err) {
-        Logger.error('Mongoose - ' + err.toString());
+        Logger.error(sprintf('%s %s', Logger.formatString(options.serviceId), err.toString()));
         deferred.reject(err);
     });
 
     this.connection.on('disconnected', function() {
-        Logger.error(options.serviceId + ' - disconnected');
+        Logger.error(sprintf('%s disconnected', Logger.formatString(options.serviceId)));
     });
 
     this.connection.open(options.host, options.db, options.port, {auto_reconnect: true});

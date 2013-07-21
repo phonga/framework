@@ -3,7 +3,8 @@ var Context =       require('../Context'),
     winston =       require('winston'),
     util =          require('util'),
     q =             require('q'),
-    _ =             require('underscore');
+    _ =             require('underscore'),
+    sprintf =       require('sprintf-js').sprintf;
 
 
 /**
@@ -54,7 +55,14 @@ Logger.prototype.initialize = function(options) {
 
     this._disabled = options.disabled;
 };
-
+/**
+ * Format the module name
+ *
+ * @param {String} name - the name to format
+ */
+Logger.prototype.formatString = function(name) {
+    return sprintf('[%10s]', name);
+};
 /**
  * Log an info
  *

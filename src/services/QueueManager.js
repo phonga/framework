@@ -6,7 +6,8 @@ var Context =       require('../Context'),
     redis =         require('redis'),
     events =        require('events'),
     async =         require('async'),
-    moment =        require('moment');
+    moment =        require('moment'),
+    sprintf =       require('sprintf-js').sprintf;
 
 /**
  * Job
@@ -142,12 +143,12 @@ Queue.prototype.initialize = function(options, Logger) {
 
     var self = this;
     this.publisher.on('connect', function() {
-        Logger.info('Queue: ' + self._queue +  ' publisher connection connected');
+        Logger.info(sprintf('%s %s publisher connection connected', Logger.formatString('QUEUE'), self._queue));
         publisherDefer.resolve();
     });
 
     this.subscriber.on('connect', function() {
-        Logger.info('Queue: ' + self._queue + ' subscriber connection connected');
+        Logger.info(sprintf('%s %s subscriber connection connected', Logger.formatString('QUEUE'), self._queue));
         subscriberDefer.resolve();
     });
 
@@ -348,7 +349,7 @@ QueueManager.prototype.initialize = function(options, Logger) {
         var d = q.defer();
         var _q = new Queue(queue);
 
-        Logger.info('QueueManager - creating queue: ' + queue);
+        Logger.info(sprintf('%s creating queue: %s', Logger.formatString('QUEUE-MANAGER'), queue));
 
         var self = this;
         Context.invoke(_q.initialize, {options: options}, _q)
