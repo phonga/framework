@@ -37,6 +37,7 @@ module.exports = function() {
 
                         http.createServer(app).listen(app.get('port'), function() {
                             require('./website/routes')(Context);
+                            require('./api')(Context);
                             Logger.info(sprintf('%s Server listening [%d]', Logger.formatString('APP'), app.get('port')));
                         });
                     }
