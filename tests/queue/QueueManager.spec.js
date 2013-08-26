@@ -14,7 +14,7 @@ describe('QueueManager Test Suite', function() {
 
         Context._services['Logger'] = logger;
 
-        manager.initialize({queues: ['JOB']}, logger)
+        manager.initialize({queues: ['JOB', 'JOB-STATUS']}, logger)
             .then(function() {
                 done();
             });
@@ -27,7 +27,47 @@ describe('QueueManager Test Suite', function() {
         expect(q, 'Invalid queue object').not.to.be.undefined;
     });
 
-    describe('listeners', function(done) {
+    it('should get the length of the queue', function(done) {
+        var queue = manager.queue('JOB');
+
+        var job = new Job();
+        job.type = 'EVENT';
+
+        queue.publish(job)
+            .then(function(id) {
+
+                queue.getLength()
+                    .then(function(length) {
+                        expect(length, 'Invalid length').to.equal(1);
+                        done();
+                    });
+            });
+    });
+
+    it('should flush the queue', function(done) {
+        var queue = manager.queue('JOB');
+
+        var job = new Job();
+        job.type = 'EVENT';
+
+        queue.publish(job)
+            .then(function(id) {
+
+                queue.flush()
+                    .then(function() {
+                        return queue.getLength();
+                    })
+                    .then(function(length) {
+                        expect(length, 'Invalid length').to.equal(0);
+                        done();
+                    })
+                    .fail(function(err) {
+                        console.log(err);
+                    });
+            });
+    });
+
+    describe('listeners', function() {
 
         it('should publish to the queue', function(done) {
             var q = manager.queue('JOB');
@@ -44,10 +84,10 @@ describe('QueueManager Test Suite', function() {
                     expect(job, 'Invalid job').not.to.be.undefined;
 
                     expect(job.queue, 'Invalid job queue').to.equal('JOB');
+                    expect(job.status, 'Invalid job status').to.equal('pending');
 
                     q.publish(job)
                         .then(function(id) {
-                            console.log('another job');
                             done();
                         });
                 });
@@ -64,10 +104,18 @@ describe('QueueManager Test Suite', function() {
                 expect(job, 'Invalid job').not.to.be.null;
                 expect(job, 'Invalid job').not.to.be.undefined;
 
-                count++;
-                if (count == 2) {
-                    done();
-                }
+                q.completeJob(job)
+                    .then(function() {
+                        expect(job.status, 'Invalid status').to.equal(Job.STATUS.COMPLETED);
+
+                        count++;
+                        if (count == 2) {
+                            done();
+                        }
+                    })
+                    .fail(function(reason) {
+                        console.log(reason);
+                    });
             });
 
             q.listen();
@@ -77,15 +125,18 @@ describe('QueueManager Test Suite', function() {
             var queue, jobId;
 
             beforeEach(function(done) {
-                queue = manager.queue('JOB');
+                queue = manager.queue('JOB-STATUS');
 
-                var job = new Job();
-                job.type = 'EVENT';
+                queue.flush()
+                    .then(function() {
+                        var job = new Job();
+                        job.type = 'EVENT';
 
-                queue.publish(job)
-                    .then(function(id) {
-                        jobId = id;
-                        done();
+                        queue.publish(job)
+                            .then(function(id) {
+                                jobId = id;
+                                done();
+                            });
                     });
             });
 
@@ -106,29 +157,53 @@ describe('QueueManager Test Suite', function() {
             it('should update the job status to completed', function(done) {
                 queue.getJob(jobId)
                     .then(function(j) {
-                        queue.completeJob(j);
-                        return queue.getJob(j.id);
-                    })
-                    .then(function(j) {
-                        expect(j.status, 'Invalid job status').to.equal(Job.STATUS.COMPLETED);
+                        queue.completeJob(j)
+                            .then(function() {
+                                return queue.getJob(j.id);
+                            })
+                            .then(function(j) {
+                                expect(j.status, 'Invalid job status').to.equal(Job.STATUS.COMPLETED);
 
-                        done();
-                    }
-                );
+                                done();
+                            });
+                    })
             });
 
             it('should update the job status to failed', function(done) {
                 queue.getJob(jobId)
                     .then(function(j) {
-                        queue.failJob(j);
-                        return queue.getJob(j.id);
-                    })
-                    .then(function(j) {
-                        expect(j.status, 'Invalid job status').to.equal(Job.STATUS.FAILED);
+                        queue.failJob(j)
+                            .then(function() {
+                                return queue.getJob(j.id);
+                            })
+                            .then(function(j) {
+                                expect(j.status, 'Invalid job status').to.equal(Job.STATUS.FAILED);
 
-                        done();
-                    }
-                );
+                                done();
+                            })
+                            .fail(function(err) {
+                                console.log(err);
+                            });
+                    });
+            });
+
+            it('should repush failed jobs', function(done) {
+                queue.flush()
+                    .then(function() {
+                        return queue.repushFailedJobs();
+                    })
+                    .then(function() {
+
+                        queue.getLength()
+                            .then(function(length) {
+                                expect(length, 'Invalid processing length').to.equal(1);
+                                done();
+                            })
+                            .fail(function(err) {
+                                console.log(err);
+                            });
+
+                    });
             });
         });
     });

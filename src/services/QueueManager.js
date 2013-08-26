@@ -19,7 +19,7 @@ var Job = function() {
     this.id = null;
     this.type = null;
     this.data = null;
-    this.created = moment.utc();
+    this.created = moment.utc().toDate();
     this.updated = null;
     this.status = Job.STATUS.PENDING;
     this.queue = null;
@@ -181,12 +181,22 @@ Queue.prototype.publish = function(job) {
     var time = moment.utc().valueOf();
     var self = this;
     async.waterfall([
+        /**
+         * Get the id for the job
+         *
+         * @param callback
+         */
         function getId(callback) {
             self.publisher.incr(self._queueId(), function(err, value) {
                 job.id = value;
-                callback(null);
+                callback(err);
             });
         },
+        /**
+         * Add the job data to the queue
+         *
+         * @param callback
+         */
         function addQueueData(callback) {
             self.publisher.mset(Job.data(job.id), job.serialize(),
                                 Job.status(job.id), Job.STATUS.PENDING,
@@ -195,6 +205,11 @@ Queue.prototype.publish = function(job) {
                                 }
             );
         },
+        /**
+         * Add the job id to the set
+         *
+         * @param callback
+         */
         function addToSet(callback) {
             self.publisher.zadd(Job.jobs(), time, job.id, callback);
         }
@@ -247,6 +262,99 @@ Queue.prototype.getJob = function(id) {
 
     return defer.promise;
 };
+/**
+ * Get the processing length
+ *
+ * @returns {Q.promise}
+ */
+Queue.prototype.getProcessingLength = function() {
+    var defer = q.defer();
+
+    this.publisher.llen(this._processingName(), function(err, value) {
+        if (err) {
+            defer.reject(err);
+        } else {
+            defer.resolve(value);
+        }
+    });
+
+    return defer.promise;
+};
+/**
+ * Get the queue length
+ *
+ * @returns {Q.promise}
+ */
+Queue.prototype.getLength = function() {
+    var defer = q.defer();
+
+    this.publisher.llen(this.getQueueName(), function(err, value) {
+        if (err) {
+            defer.reject(err);
+        } else {
+            defer.resolve(value);
+        }
+    });
+
+    return defer.promise;
+};
+/**
+ * Empty the queue
+ *
+ * @returns {Q.promise}
+ */
+Queue.prototype.flush = function() {
+    var defer = q.defer();
+
+    this.getLength()
+        .then(_.bind(function(len) {
+            this.publisher.del(this.getQueueName(), function(err) {
+                if (err) {
+                    defer.reject(err);
+                } else {
+                    defer.resolve();
+                }
+            })
+        }, this));
+
+    return defer.promise;
+};
+/**
+ * Repush failed jobs
+ *
+ * @returns {*}
+ */
+Queue.prototype.repushFailedJobs = function() {
+    var defers = [];
+
+    this.publisher.lpop(this._failedName(), _.bind(function(err, id) {
+        defers.push(this.repushJob(id));
+    }, this));
+
+    return q.all(defers);
+};
+/**
+ * Repush a job
+ *
+ * @param {String} id - the id for the job to push
+ * @returns {Q.promise}
+ */
+Queue.prototype.repushJob = function(id) {
+    var defer = q.defer();
+
+    this.getJob(id)
+        .then(_.bind(function(job) {
+            this.publish(job)
+                .then(function() {
+                    defer.resolve();
+                })
+                .fail(function(err) {
+                    defer.reject(err);
+                });
+        }, this));
+
+    return defer.promise;
+};
 
 /**
  * Set the job to completed
@@ -255,7 +363,10 @@ Queue.prototype.getJob = function(id) {
  * @returns {Q.promise}
  */
 Queue.prototype.completeJob = function(job) {
-    return this.updateJobStatus(job, Job.STATUS.COMPLETED);
+    return q.all([
+        this._removeFromProcessing(job.id),
+        this.updateJobStatus(job, Job.STATUS.COMPLETED)
+    ]);
 };
 
 /**
@@ -265,7 +376,11 @@ Queue.prototype.completeJob = function(job) {
  * @returns {Q.promise}
  */
 Queue.prototype.failJob = function(job) {
-    return this.updateJobStatus(job, Job.STATUS.FAILED);
+    return q.all([
+        this._removeFromProcessing(job.id),
+        this._addToFailed(job.id),
+        this.updateJobStatus(job, Job.STATUS.FAILED)
+    ]);
 };
 
 /**
@@ -289,7 +404,7 @@ Queue.prototype.updateJobStatus = function(job, status) {
     var defer = q.defer();
 
     job.status = status;
-    job.updated = moment.utc();
+    job.updated = moment.utc().toDate();
 
     this.publisher.mset(Job.data(job.id), job.serialize(),
         Job.status(job.id), status,
@@ -319,6 +434,51 @@ Queue.prototype._queueId = function() {
  */
 Queue.prototype._processingName = function() {
     return this.getQueueName() + ':processing';
+};
+/**
+ * Get the failed name
+ *
+ * @returns {string}
+ * @private
+ */
+Queue.prototype._failedName = function() {
+    return this.getQueueName() + ':failed';
+};
+/**
+ * Remove from the processing list
+ *
+ * @param id
+ * @returns {Q.promise}
+ * @private
+ */
+Queue.prototype._removeFromProcessing = function(id) {
+    var defer = q.defer();
+
+    this.publisher.lrem(this._processingName(), 0, id,
+        function() {
+            defer.resolve();
+        }
+    );
+
+    return defer.promise;
+};
+/**
+ * Add to the failed list
+ *
+ * @param id
+ * @returns {Q.promise}
+ * @private
+ */
+Queue.prototype._addToFailed = function(id) {
+    var defer = q.defer();
+
+    this.publisher.lpush(this._failedName(), id,
+        function() {
+            defer.resolve();
+        }
+    );
+
+    return defer.promise;
 };
 
 /**
