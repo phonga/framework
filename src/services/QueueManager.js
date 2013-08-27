@@ -107,6 +107,9 @@ var Queue = function(queue) {
 
     this._listeners = [];
     this._queue = queue;
+
+    this._parallel = 5;
+    this._processing = 0;
 };
 
 util.inherits(Queue, events.EventEmitter);
@@ -163,7 +166,14 @@ Queue.prototype.initialize = function(options, Logger) {
 Queue.prototype.getQueueName = function() {
     return 'queue:' + this._queue;
 };
-
+/**
+ * Set the concurrency level
+ *
+ * @param concurrency
+ */
+Queue.prototype.setConcurrency = function(concurrency) {
+    this._parallel = concurrency;
+};
 /**
  * Publish a job on the queue
  *
@@ -229,13 +239,19 @@ Queue.prototype.publish = function(job) {
  * Start listening on the queue for the event
  */
 Queue.prototype.listen = function() {
-    this.subscriber.brpoplpush(this.getQueueName(), this._processingName(), 0, _.bind(function(err, value) {
-        this.getJob(value)
-            .then(_.bind(function(job) {
-                this.emit(job.type, job);
-                setImmediate(_.bind(this.listen, this));
-            }, this));
-    }, this));
+    if (this._listeners.length > 0) {
+        this.subscriber.brpoplpush(this.getQueueName(), this._processingName(), 0, _.bind(function(err, value) {
+            this.getJob(value)
+                .then(_.bind(function(job) {
+                    this._processing++;
+                    this.emit(job.type, job);
+
+                    if (!this._isBusy()) {
+                        setImmediate(_.bind(this.listen, this));
+                    }
+                }, this));
+        }, this));
+    }
 };
 
 /**
@@ -344,13 +360,17 @@ Queue.prototype.repushJob = function(id) {
 
     this.getJob(id)
         .then(_.bind(function(job) {
-            this.publish(job)
-                .then(function() {
-                    defer.resolve();
-                })
-                .fail(function(err) {
-                    defer.reject(err);
-                });
+
+            this.updateJobStatus(job, Job.STATUS.PENDING)
+                .then(_.bind(function() {
+                    this.publisher.lpush(this.getQueueName(), job.id, function(err) {
+                        if (err) {
+                            defer.reject(err);
+                        } else {
+                            defer.resolve();
+                        }
+                    });
+                }, this));
         }, this));
 
     return defer.promise;
@@ -363,6 +383,11 @@ Queue.prototype.repushJob = function(id) {
  * @returns {Q.promise}
  */
 Queue.prototype.completeJob = function(job) {
+
+    if (!this._isBusy()) {
+        setImmediate(_.bind(this.listen, this));
+    }
+
     return q.all([
         this._removeFromProcessing(job.id),
         this.updateJobStatus(job, Job.STATUS.COMPLETED)
@@ -376,6 +401,10 @@ Queue.prototype.completeJob = function(job) {
  * @returns {Q.promise}
  */
 Queue.prototype.failJob = function(job) {
+    if (!this._isBusy()) {
+        setImmediate(_.bind(this.listen, this));
+    }
+
     return q.all([
         this._removeFromProcessing(job.id),
         this._addToFailed(job.id),
@@ -480,7 +509,15 @@ Queue.prototype._addToFailed = function(id) {
 
     return defer.promise;
 };
-
+/**
+ * Check if the queue is busy
+ *
+ * @returns {boolean}
+ * @private
+ */
+Queue.prototype._isBusy = function() {
+    return this._processing >= this._parallel;
+};
 /**
  * Queue Manager Service
  *

@@ -14,7 +14,7 @@ describe('QueueManager Test Suite', function() {
 
         Context._services['Logger'] = logger;
 
-        manager.initialize({queues: ['JOB', 'JOB-STATUS']}, logger)
+        manager.initialize({queues: ['JOB', 'JOB-STATUS', 'JOB-CONCURRENCY']}, logger)
             .then(function() {
                 done();
             });
@@ -203,8 +203,55 @@ describe('QueueManager Test Suite', function() {
                                 console.log(err);
                             });
 
+                    })
+                    .fail(function(err) {
+                        console.log(err);
                     });
             });
         });
+
+        describe('Job concurrency', function() {
+            var queue, jobId;
+
+            beforeEach(function(done) {
+                queue = manager.queue('JOB-CONCURRENCY');
+
+                queue.setConcurrency(2);
+
+                queue.flush()
+                    .then(function() {
+                        var job = new Job();
+                        job.type = 'EVENT';
+
+                        queue.publish(job)
+                            .then(function(id) {
+                                jobId = id;
+                                done();
+                            });
+                    });
+            });
+
+            it('should only process max jobs', function(done) {
+                var job = new Job();
+                job.type = 'EVENT';
+
+                queue.publish(job)
+                    .then(function() {
+                        queue.on('EVENT', function(job) {
+                        });
+
+                        queue.listen();
+
+                        queue.getLength()
+                            .then(function(length) {
+                                expect(length, 'Invalid length').to.equal(1);
+
+                                done();
+                            });
+                    });
+            });
+
+        });
+
     });
 });
