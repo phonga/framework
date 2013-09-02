@@ -23,7 +23,6 @@ module.exports = function() {
                             app.use(express.bodyParser());
                             app.use(express.methodOverride());
                             app.use(express.cookieParser('your secret here'));
-                            app.use(express.session());
 
                             require('./middleware/index')(Context);
 
