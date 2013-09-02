@@ -8,6 +8,7 @@
     "dependencies": {
         "express":              "3.x.x",
         "ejs":                  "*",
+
         "passport":             "*",
         "passport-facebook":    "*",
         "passport-local":       "*",
@@ -24,6 +25,7 @@
 
         "mongoose":             "*",
         "redis":                "*",
+        "connect-redis":        "*",
 
         "facebook-node-sdk":    "*",
 
