@@ -11,8 +11,6 @@ module.exports = function() {
     var app = express();
     Context.setApp(app);
 
-    var RedisStore = require('connect-redis')(app);
-
     var fn = Context.invokeFunction(
                     function(Logger) {
 
@@ -25,10 +23,7 @@ module.exports = function() {
                             app.use(express.bodyParser());
                             app.use(express.methodOverride());
                             app.use(express.cookieParser('your secret here'));
-                            app.use(express.session({
-                                store: new RedisStore(),
-                                secret: 'abcdefg'
-                            }));
+                            app.use(express.session());
 
                             require('./middleware/index')(Context);
 
