@@ -217,8 +217,8 @@ Context.prototype.invokeFunction = function(func) {
  * @param {String} url - the url to bind the get for
  * @param {Function} callback - the callback function
  */
-Context.prototype.get = function(url, callback) {
-    this.getApp().get(url, Context.invokeRequestHandler(callback));
+Context.prototype.GET = function(url, callback) {
+    this.getApp().get(url, this.invokeRequestHandler(callback));
 };
 /**
  * Load a service from the config, returns a promise.
