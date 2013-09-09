@@ -57,7 +57,7 @@ Mongoose.prototype.initialize = function(options, Logger) {
 };
 
 /**
- * Create schema object for the schema defintion
+ * Create schema object for the schema definition
  *
  * @param {Object} schema The schema object
  * @param {Object} [methods] The methods object
@@ -66,6 +66,41 @@ Mongoose.prototype.initialize = function(options, Logger) {
  */
 Mongoose.prototype.createSchema = function(schema, methods, statics) {
     var s = mongoose.Schema(schema);
+
+    /**
+     * Get the model method
+     *
+     * @returns {*}
+     */
+    s.methods.getModel = function() {
+        return this.model(this.constructor.modelName);
+    };
+    /**
+     * Find one and populate
+     *
+     * @param {Object} query - the query object
+     * @param {Array} fields - the array of fields to populate
+     * @returns {Q.promise}
+     */
+    s.statics.findAndPopulate = function(query, fields) {
+
+        var defer = q.defer();
+
+        var query = this.find(query);
+        _.each(fields, function(field) {
+            query = query.populate(field);
+        });
+
+        query.exec(function(err, obj) {
+            if (err) {
+                defer.reject(err);
+            } else {
+                defer.resolve(obj);
+            }
+        });
+
+        return defer.promise;
+    };
 
     if (methods) {
         s.method(methods);
