@@ -3,7 +3,7 @@ var Context =       require('../Context'),
     util =          require('util'),
     q =             require('q'),
     _ =             require('underscore'),
-    redis =         required('redis');
+    redis =         require('redis');
 /**
  * Redis service
  *
