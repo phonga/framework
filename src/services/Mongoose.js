@@ -101,6 +101,31 @@ Mongoose.prototype.createSchema = function(schema, methods, statics) {
 
         return defer.promise;
     };
+    /**
+     * Find and populate fields
+     *
+     * @param query
+     * @param fields
+     * @returns {Q.promise}
+     */
+    s.statics.findAndPopulate = function(query, fields) {
+        var defer = q.defer();
+
+        var queryExec = this.find(query);
+        _.each(fields, function(field) {
+            queryExec = queryExec.populate(field);
+        });
+
+        queryExec.exec(function(err, obj) {
+            if (err) {
+                defer.reject(err);
+            } else {
+                defer.resolve(obj);
+            }
+        });
+
+        return defer.promise;
+    };
 
     if (methods) {
         s.method(methods);
