@@ -33,6 +33,8 @@ Redis.prototype.initialize = function(options) {
 
     var defer = q.defer();
 
+    this.service = redis.createClient(options.port, options.host);
+
     this.service.on('ready', function() {
         defer.resolve();
     });
@@ -40,8 +42,6 @@ Redis.prototype.initialize = function(options) {
     this.service.on('error', function(err) {
         defer.reject(err);
     });
-
-    this.service = redis.createClient(options.port, options.host);
 
     return defer.promise;
 };
