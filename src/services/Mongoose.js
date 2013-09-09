@@ -76,22 +76,22 @@ Mongoose.prototype.createSchema = function(schema, methods, statics) {
         return this.model(this.constructor.modelName);
     };
     /**
-     * Find one and populate
+     * Find one instance and populate fields
      *
      * @param {Object} query - the query object
-     * @param {Array} fields - the array of fields to populate
+     * @param {Array} fields - the fields to populate
      * @returns {Q.promise}
      */
-    s.statics.findAndPopulate = function(query, fields) {
-
+    s.statics.findOneAndPopulate = function(query, fields) {
         var defer = q.defer();
 
-        var query = this.find(query);
+        var queryExec = this.findOne(query);
+
         _.each(fields, function(field) {
-            query = query.populate(field);
+            queryExec = queryExec.populate(field);
         });
 
-        query.exec(function(err, obj) {
+        queryExec.exec(function(err, obj) {
             if (err) {
                 defer.reject(err);
             } else {
