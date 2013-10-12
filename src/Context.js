@@ -150,6 +150,16 @@ Context.prototype.get = function(id) {
 };
 
 /**
+ * Set the service in the services store
+ *
+ * @param {String} id - the id for the service
+ * @param {Mixed} service - the service to store
+ */
+Context.prototype.set = function(id, service) {
+    this._services[id] = service;
+};
+
+/**
  * Invoke a function with injection of services, only the services known to the Context
  * will be injected, otherwise if not found in the service list or the argObject list
  * then an error is thrown.
@@ -248,7 +258,7 @@ Context.prototype._loadService = function(serviceConfig) {
     var defer = this.invoke(service.initialize, {options: serviceConfig.options}, service);
 
     // Store the service in the cache
-    this._services[serviceConfig.id] = service;
+    this.set(serviceConfig.id, service);
 
     return defer;
 };

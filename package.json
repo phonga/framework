@@ -24,6 +24,9 @@
         "commander":            "*",
         "superagent":           "*",
 
+        "stompjs":              "*",
+        "amqp":                 "*",
+
         "mongoose":             "*",
         "redis":                "*",
         "connect-redis":        "*",
