@@ -1,3 +1,4 @@
+var sprintf =       require('sprintf-js').sprintf;
 /**
  * Base service class
  *
@@ -40,6 +41,14 @@ BaseService.prototype.getId = function() {
  */
 BaseService.prototype.initialize = function(options) {
     throw new Error('BaseService initialize not defined');
+};
+
+BaseService.prototype.info = function(Logger, message) {
+    Logger.info(sprintf('%-20s %s', '/service/' + this._type, message));
+};
+
+BaseService.prototype.error = function(Logger, message) {
+    Logger.error(sprintf('%-20s %s', '/service/' + this._type, message));
 };
 
 module.exports = BaseService;

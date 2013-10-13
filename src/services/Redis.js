@@ -3,7 +3,9 @@ var Context =       require('../Context'),
     util =          require('util'),
     q =             require('q'),
     _ =             require('underscore'),
-    redis =         require('redis');
+    redis =         require('redis'),
+    sprintf =       require('sprintf-js').sprintf;
+
 /**
  * Redis service
  *
@@ -23,7 +25,7 @@ util.inherits(Redis, BaseService);
  * @param {Object} options The options for the service
  * @returns {Q.promise}
  */
-Redis.prototype.initialize = function(options) {
+Redis.prototype.initialize = function(options, Logger) {
     options = options || {};
 
     _.defaults(options, {
@@ -35,13 +37,15 @@ Redis.prototype.initialize = function(options) {
 
     this.service = redis.createClient(options.port, options.host);
 
-    this.service.on('ready', function() {
+    this.service.on('ready', _.bind(function() {
+        this.info(Logger, sprintf('%s ready', options.serviceId));
         defer.resolve();
-    });
+    }, this));
 
-    this.service.on('error', function(err) {
+    this.service.on('error', _.bind(function(err) {
+        this.error(Logger, err);
         defer.reject(err);
-    });
+    }, this));
 
     return defer.promise;
 };

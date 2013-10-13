@@ -6,6 +6,27 @@
             "options": {
                 "db":   "test"
             }
+        },
+        {
+            "id":   "cache",
+            "type": "Redis"
+        },
+        {
+            "id":   "queue",
+            "type": "Amqp",
+            "options": {
+                "exchanges": [
+                    {
+                        "name": "VideoExchange",
+                        "binds": [
+                            {
+                                "queue": "Limelight",
+                                "route": "limelight"
+                            }
+                        ]
+                    }
+                ]
+            }
         }
     ]
 }

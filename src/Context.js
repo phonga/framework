@@ -231,6 +231,33 @@ Context.prototype.GET = function(url, callback) {
     this.getApp().get(url, this.invokeRequestHandler(callback));
 };
 /**
+ * Helper for POST requests
+ *
+ * @param {String} url - the url to bind the post for
+ * @param {Function} callback - the callback
+ */
+Context.prototype.POST = function(url, callback) {
+    this.getApp().post(url, this.invokeRequestHandler(callback));
+};
+/**
+ * Helper for DELETE requests
+ *
+ * @param {String} url - the url to bind the post for
+ * @param {Function} callback - the callback
+ */
+Context.prototype.DELETE = function(url, callback) {
+    this.getApp().delete(url, this.invokeRequestHandler(callback));
+};
+/**
+ * Helper for PUSH requests
+ *
+ * @param {String} url - the url to bind the post for
+ * @param {Function} callback - the callback
+ */
+Context.prototype.PUSH = function(url, callback) {
+    this.getApp().push(url, this.invokeRequestHandler(callback));
+};
+/**
  * Load a service from the config, returns a promise.
  *
  * @param {Object} serviceConfig The service config

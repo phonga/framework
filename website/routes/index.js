@@ -1,5 +1,6 @@
 var fs          = require('fs'),
-    sprintf     = require('sprintf-js').sprintf;
+    sprintf     = require('sprintf-js').sprintf,
+    path        = require('path');
 
 /**
  * Require a route
@@ -15,7 +16,7 @@ var requireRoute = function(file, Context) {
     var logger = Context.get('Logger');
 
     var name = file.substr(0, file.indexOf('.'));
-    logger.info(sprintf('%s %s', logger.formatString('WEBSITE'), name));
+    logger.info(sprintf('/website/%s', path.basename(name)));
 
     // Load the route
     require(file)(Context);

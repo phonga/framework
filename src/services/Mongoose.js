@@ -37,18 +37,18 @@ Mongoose.prototype.initialize = function(options, Logger) {
 
     this.connection = mongoose.createConnection();
 
-    this.connection.on('open', function() {
-        Logger.info(sprintf('%s connected to %s', Logger.formatString(options.serviceId), options.host));
+    this.connection.on('open', _.bind(function() {
+        this.info(Logger, sprintf('%s ready', options.serviceId));
         deferred.resolve();
-    });
+    }, this));
 
-    this.connection.on('error', function(err) {
-        Logger.error(sprintf('%s %s', Logger.formatString(options.serviceId), err.toString()));
+    this.connection.on('error', _.bind(function(err) {
+        this.error(Logger, sprintf('%s %s', options.serviceId, err.toString()));
         deferred.reject(err);
-    });
+    }, this));
 
     this.connection.on('disconnected', function() {
-        Logger.error(sprintf('%s disconnected', Logger.formatString(options.serviceId)));
+        this.error(Logger, sprintf('%s disconnected', options.serviceId));
     });
 
     this.connection.open(options.host, options.db, options.port, {auto_reconnect: true});

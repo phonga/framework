@@ -3,7 +3,9 @@ var Context =       require('../Context'),
     util =          require('util'),
     q =             require('q'),
     _ =             require('underscore'),
-    amqp =          require('amqp');
+    amqp =          require('amqp'),
+    sprintf =       require('sprintf-js').sprintf;
+
 /**
  * AMQP Service
  *
@@ -23,7 +25,7 @@ util.inherits(AMQP, BaseService);
  * @param options
  * @returns {Q.promise}
  */
-AMQP.prototype.initialize = function(options) {
+AMQP.prototype.initialize = function(options, Logger) {
     options = options || {};
 
     _.defaults(options, {
@@ -35,13 +37,13 @@ AMQP.prototype.initialize = function(options) {
 
     var defer = q.defer();
 
-
     this.service = amqp.createConnection(options);
 
     var self = this;
     this.service.on('ready', function () {
-        self._initializeExchanges(options.exchanges)
+        self._initializeExchanges(options.exchanges, Logger)
             .then(function() {
+                self.info(Logger, options.serviceId + ' ready');
                 defer.resolve();
             });
     });
@@ -116,10 +118,11 @@ AMQP.prototype._exchangeFactory = function(exchange) {
  * Initialize the exchanges
  *
  * @param {Array} exchanges - exchange definitions
+ * @param {Logger} Logger - logger service
  * @returns {*}
  * @private
  */
-AMQP.prototype._initializeExchanges = function(exchanges) {
+AMQP.prototype._initializeExchanges = function(exchanges, Logger) {
     var defers = [];
 
     var self = this;
@@ -131,7 +134,8 @@ AMQP.prototype._initializeExchanges = function(exchanges) {
         self.exchange(option.name)
             .then(function(exch) {
                 exchange = exch;
-                return self._initializeBinds(exchange, option.binds);
+                self.info(Logger, '/' + option.name);
+                return self._initializeBinds(exchange, option.binds, Logger);
             })
             .then(function() {
                 self.exchanges[option.name] = self._exchangeFactory(exchange);
@@ -147,10 +151,11 @@ AMQP.prototype._initializeExchanges = function(exchanges) {
  *
  * @param {Exchange} exchange - the exchange to bind to
  * @param {Object} binds - the bind definition
+ * @param {Logger} Logger - logger service
  * @returns {*}
  * @private
  */
-AMQP.prototype._initializeBinds = function(exchange, binds) {
+AMQP.prototype._initializeBinds = function(exchange, binds, Logger) {
     var defers = [];
 
     var self = this;
@@ -161,6 +166,7 @@ AMQP.prototype._initializeBinds = function(exchange, binds) {
             .then(function(queue) {
                 queue.bind(exchange, bind.route);
                 Context.set(bind.queue, queue);
+                self.info(Logger, sprintf('/%s/%s/%s', exchange.name, bind.route, bind.queue));
                 defer.resolve();
             });
 
