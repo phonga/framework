@@ -61,7 +61,7 @@ Logger.prototype.initialize = function(options) {
  * @param {String} name - the name to format
  */
 Logger.prototype.formatString = function(name) {
-    return sprintf('[%10s]', name);
+    return sprintf('%-10s', name);
 };
 /**
  * Log an info

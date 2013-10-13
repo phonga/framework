@@ -38,7 +38,7 @@ Redis.prototype.initialize = function(options, Logger) {
     this.service = redis.createClient(options.port, options.host);
 
     this.service.on('ready', _.bind(function() {
-        this.info(Logger, sprintf('%s ready', options.serviceId));
+        this.info(Logger, sprintf('%s ready', Logger.formatString(options.serviceId)));
         defer.resolve();
     }, this));
 

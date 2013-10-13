@@ -43,7 +43,7 @@ AMQP.prototype.initialize = function(options, Logger) {
     this.service.on('ready', function () {
         self._initializeExchanges(options.exchanges, Logger)
             .then(function() {
-                self.info(Logger, options.serviceId + ' ready');
+                self.info(Logger, Logger.formatString(options.serviceId) + ' ready');
                 defer.resolve();
             });
     });
