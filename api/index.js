@@ -15,7 +15,7 @@ var requireRoute = function(file, Context) {
     var logger = Context.get('Logger');
 
     var name = file.substr(0, file.indexOf('.'));
-    logger.info(sprintf('%s %s', logger.formatString('API'), name));
+    logger.info(sprintf('/api/%s', name));
 
     // Load the route
     require(file)(Context);
