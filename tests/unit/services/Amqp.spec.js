@@ -5,6 +5,7 @@
  * Timestamp: 9/9/13 1:24 PM
  */
 var AMQP        = require('../../../src/services/Amqp'),
+    Logger      = require('../../../src/services/Logger'),
     expect      = require('chai').expect,
     _           = require('underscore'),
     querystring = require('querystring'),
@@ -17,6 +18,7 @@ var AMQP        = require('../../../src/services/Amqp'),
     beforeEach(function(done) {
         service = new AMQP();
         var options = {
+            serviceId: 'AMQP',
             exchanges: [
                 {
                     name: 'test-exchange',
@@ -30,7 +32,9 @@ var AMQP        = require('../../../src/services/Amqp'),
             ]
         };
 
-        service.initialize(options)
+        var logger = new Logger();
+        logger.initialize({disabled: true});
+        service.initialize(options, logger)
             .then(function() {
                 done();
             });
@@ -47,7 +51,7 @@ var AMQP        = require('../../../src/services/Amqp'),
         service.queue('test-queue')
             .then(function(queue) {
                 expect(queue, 'Invalid queue').not.to.be.undefined;
-                expect(queue.name, 'Invalid queue name').to.equal('test-queue');
+                expect(queue.queue, 'Invalid queue name').to.equal('test-queue');
 
                 done();
             });
@@ -67,7 +71,6 @@ var AMQP        = require('../../../src/services/Amqp'),
         service.exchange('test-exchange')
             .then(function(exchange) {
                 expect(exchange, 'Invalid exchange').not.to.be.undefined;
-                expect(exchange.name, 'Invalid exchange name').to.equal('test-exchange');
 
                 done();
             });
@@ -76,7 +79,8 @@ var AMQP        = require('../../../src/services/Amqp'),
     it('should publish and receive a message', function(done) {
         var queue = Context.get('test-queue');
         queue.subscribe(function(message) {
-            expect( message.data.toString(), 'Invalid payload').to.equal('hello world');
+            queue.ack(message);
+            expect( message.content.toString(), 'Invalid payload').to.equal('hello world');
             done();
         });
 

@@ -25,7 +25,7 @@
         "superagent":           "*",
 
         "stompjs":              "*",
-        "amqp":                 "*",
+        "amqplib":              "*",
 
         "mongoose":             "*",
         "redis":                "*",

@@ -3,7 +3,7 @@ var Context =       require('../Context'),
     util =          require('util'),
     q =             require('q'),
     _ =             require('underscore'),
-    amqp =          require('amqp'),
+    amqp =          require('amqplib'),
     sprintf =       require('sprintf-js').sprintf;
 
 /**
@@ -37,17 +37,19 @@ AMQP.prototype.initialize = function(options, Logger) {
 
     var defer = q.defer();
 
-    this.service = amqp.createConnection(options);
-
     var self = this;
-    this.service.on('ready', function () {
-        self._initializeExchanges(options.exchanges, Logger)
-            .then(function() {
-                self.info(Logger, Logger.formatString(options.serviceId) + ' ready');
-                defer.resolve();
-            });
-    });
-
+    amqp.connect('amqp://' + options.host)
+        .then(function(connection) {
+            return connection.createChannel();
+        })
+        .then(function(channel) {
+            self.service = channel;
+            self._initializeExchanges(options.exchanges, Logger)
+                .then(function() {
+                    self.info(Logger, Logger.formatString(options.serviceId) + ' ready');
+                    defer.resolve();
+                });
+        });
 
     return defer.promise;
 };
@@ -60,9 +62,10 @@ AMQP.prototype.initialize = function(options, Logger) {
 AMQP.prototype.queue = function(name) {
     var defer = q.defer();
 
-    this.service.queue(name, function(queue) {
-        defer.resolve(queue);
-    });
+    this.service.assertQueue(name)
+        .then(function(queue) {
+            defer.resolve(queue);
+        });
 
     return defer.promise;
 };
@@ -75,9 +78,10 @@ AMQP.prototype.queue = function(name) {
 AMQP.prototype.exchange = function(name) {
     var defer = q.defer();
 
-    this.service.exchange(name, {confirm: true}, function(exchange) {
-        defer.resolve(exchange);
-    });
+    this.service.assertExchange(name, 'topic')
+        .then(function(exchange) {
+            defer.resolve(exchange);
+        });
 
     return defer.promise;
 };
@@ -89,6 +93,7 @@ AMQP.prototype.exchange = function(name) {
  * @private
  */
 AMQP.prototype._exchangeFactory = function(exchange) {
+    var self = this;
     return {
         exchange: exchange,
         /**
@@ -102,13 +107,11 @@ AMQP.prototype._exchangeFactory = function(exchange) {
         publish: function(routingKey, message, options) {
             var defer = q.defer();
 
-            exchange.publish(routingKey, message, options, function(success) {
-                if (success) {
-                    defer.resolve();
-                } else {
-                    defer.reject();
-                }
-            });
+            if (self.service.publish(exchange, routingKey, new Buffer(message), options)) {
+                defer.resolve();
+            } else {
+                defer.reject();
+            }
 
             return defer.promise;
         }
@@ -130,15 +133,13 @@ AMQP.prototype._initializeExchanges = function(exchanges, Logger) {
         var defer = q.defer();
         defers.push(defer.promise);
 
-        var exchange;
         self.exchange(option.name)
-            .then(function(exch) {
-                exchange = exch;
+            .then(function() {
                 self.info(Logger, '/' + option.name);
-                return self._initializeBinds(exchange, option.binds, Logger);
+                return self._initializeBinds(option.name, option.binds, Logger);
             })
             .then(function() {
-                self.exchanges[option.name] = self._exchangeFactory(exchange);
+                self.exchanges[option.name] = self._exchangeFactory(option.name);
                 Context.set(option.name, self.exchanges[option.name]);
                 defer.resolve();
             });
@@ -164,10 +165,22 @@ AMQP.prototype._initializeBinds = function(exchange, binds, Logger) {
 
         self.queue(bind.queue)
             .then(function(queue) {
-                queue.bind(exchange, bind.route);
-                Context.set(bind.queue, queue);
-                self.info(Logger, sprintf('/%s/%s/%s', exchange.name, bind.route, bind.queue));
-                defer.resolve();
+                self.service.bindQueue(queue.queue, exchange, bind.route)
+                    .then(function() {
+                        Context.set(bind.queue, {
+                            subscribe: function(callback) {
+                                self.service.consume(bind.queue, callback, {noAck: true});
+                            },
+
+                            ack: function(message) {
+                                self.service.ack(message);
+                            }
+                        });
+
+                        self.info(Logger, sprintf('/%s/%s/%s', exchange, bind.route, bind.queue));
+                        defer.resolve();
+                    });
+
             });
 
         defers.push(defer.promise);

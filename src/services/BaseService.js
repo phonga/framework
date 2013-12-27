@@ -44,11 +44,15 @@ BaseService.prototype.initialize = function(options) {
 };
 
 BaseService.prototype.info = function(Logger, message) {
-    Logger.info(sprintf('%-20s %s', '/service/' + this._type, message));
+    if (Logger) {
+        Logger.info(sprintf('%-20s %s', '/service/' + this._type, message));
+    }
 };
 
 BaseService.prototype.error = function(Logger, message) {
-    Logger.error(sprintf('%-20s %s', '/service/' + this._type, message));
+    if (Logger) {
+        Logger.error(sprintf('%-20s %s', '/service/' + this._type, message));
+    }
 };
 
 module.exports = BaseService;
