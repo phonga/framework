@@ -30,6 +30,8 @@
         "mongoose":             "*",
         "redis":                "*",
         "connect-redis":        "*",
+        "sequelize":            "*",
+        "mysql":                "*",
 
         "facebook-node-sdk":    "*",
 
