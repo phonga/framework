@@ -50,5 +50,15 @@ Sequelize.prototype.initialize = function(options, Logger) {
             }
         }, this));
 };
+/**
+ * Define a model
+ *
+ * @param {String} model - the name of the model
+ * @param {Object} definition - the model definition
+ * @returns {*}
+ */
+Sequelize.prototype.define = function(model, definition) {
+    return this._connection.define(model, definition);
+};
 
 module.exports = Sequelize;
