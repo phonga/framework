@@ -17,7 +17,7 @@ var Sequelize = function() {
     this._connection = null;
 };
 
-util.inherit(Sequelize, BaseService);
+util.inherits(Sequelize, BaseService);
 
 /**
  * Initialize the sequelize connection
@@ -49,6 +49,8 @@ Sequelize.prototype.initialize = function(options, Logger) {
                 deferred.resolve();
             }
         }, this));
+
+    return deferred.promise;
 };
 /**
  * Define a model
