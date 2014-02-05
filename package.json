@@ -35,6 +35,7 @@
 
         "facebook-node-sdk":    "*",
 
-        "chai":                 "*"
+        "chai":                 "*",
+        "supertest":            "*"
     }
 }
