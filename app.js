@@ -34,6 +34,8 @@ module.exports = function() {
                             app.use(express.errorHandler());
                         });
 
+                        require(Context.__src('app/init/index'));
+
                         http.createServer(app).listen(app.get('port'), function() {
                             require('./website/routes')(Context);
                             require('./api')(Context);
