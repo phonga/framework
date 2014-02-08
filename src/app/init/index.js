@@ -12,7 +12,7 @@ module.exports = function(Context) {
         fs.readdirSync(__dirname).forEach(function(file) {
             if (file !== "index.js") {
                 var location = __dirname + '/' + file;
-                Logger.info(sprintf('%s initializing ...', file));
+                Logger.info(sprintf('[POST_INIT] %s initializing ...', file));
                 require(location)(Context);
             }
         });
