@@ -25,7 +25,7 @@ module.exports = function() {
                             app.use(express.methodOverride());
                             app.use(express.cookieParser('your secret here'));
 
-                            require('./middleware/index')(Context);
+                            require(Context.__src('app/middleware/index'))(Context);
 
                             app.use(app.router);
                             app.use(express.static(path.join(__dirname, '/website/public')));
