@@ -63,7 +63,9 @@ Sequelize.prototype.initialize = function(options, Logger) {
  * @returns {*}
  */
 Sequelize.prototype.define = function(model, definition, classMethods, instanceMethods) {
-    return this._connection.define(model, definition, {classMethods: classMethods, instanceMethods: instanceMethods});
+    var model = this._connection.define(model, definition, {classMethods: classMethods, instanceMethods: instanceMethods});
+    model.sync();
+    return model;
 };
 
 module.exports = Sequelize;
