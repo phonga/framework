@@ -240,6 +240,15 @@ Context.prototype.POST = function(url, callback) {
     this.getApp().post(url, this.invokeRequestHandler(callback));
 };
 /**
+ * Helper for PUT requests
+ *
+ * @param {String} url - the url to bind the post for
+ * @param {Function} callback - the callback
+ */
+Context.prototype.PUT = function(url, callback) {
+    this.getApp().put(url, this.invokeRequestHandler(callback));
+};
+/**
  * Helper for DELETE requests
  *
  * @param {String} url - the url to bind the post for
