@@ -74,7 +74,7 @@ Sequelize.prototype.define = function(model, definition, classMethods, instanceM
  */
 Sequelize.prototype.query = function() {
     var args = Array.prototype.slice.call(arguments);
-    return this._connection.query.apply(this, args);
+    return this._connection.query.apply(this._connection, args);
 };
 
 module.exports = Sequelize;
