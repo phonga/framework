@@ -67,5 +67,14 @@ Sequelize.prototype.define = function(model, definition, classMethods, instanceM
     model.sync();
     return model;
 };
+/**
+ * Query the database
+ *
+ * @returns {*}
+ */
+Sequelize.prototype.query = function() {
+    var args = Array.prototype.slice.call(arguments);
+    return this._connection.query.apply(this, args);
+};
 
 module.exports = Sequelize;
