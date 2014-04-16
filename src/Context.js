@@ -222,6 +222,30 @@ Context.prototype.invokeFunction = function(func) {
     }
 };
 /**
+ * Add route for application
+ *
+ * @param {string} path - the route
+ * @returns {{get: get, post: post, put: put, delete: delete}} methods to attach to route
+ */
+Context.prototype.route = function(path) {
+    var _r = this.getApp().route(path);
+    var self = this;
+    return {
+        get: function(callback) {
+            _r.get(self.invokeRequestHandler(callback))
+        },
+        post: function(callback) {
+            _r.post(self.invokeRequestHandler(callback))
+        },
+        put: function(callback) {
+            _r.put(self.invokeRequestHandler(callback))
+        },
+        delete: function(callback) {
+            _r.delete(self.invokeRequestHandler(callback))
+        }
+    }
+};
+/**
  * Helper for GET requests
  *
  * @param {String} url - the url to bind the get for

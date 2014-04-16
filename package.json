@@ -6,7 +6,13 @@
         "start": "node app"
     },
     "dependencies": {
-        "express":              "3.x.x",
+        "express":              "4.x.x",
+        "body-parser":          "~1.x.x",
+        "method-override":      "~1.x.x",
+        "compression":          "~1.x.x",
+        "static-favicon":       "~1.x.x",
+        "cookie-parser":        "~1.x.x",
+        "errorhandler":         "~1.x.x",
         "ejs":                  "*",
 
         "passport":             "*",

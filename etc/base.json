@@ -1,0 +1,11 @@
+{
+    "services": [
+        {
+            "id":   "Mongoose",
+            "type": "Mongoose",
+            "options": {
+                "db":   "test"
+            }
+        }
+    ]
+}

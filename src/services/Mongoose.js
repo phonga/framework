@@ -47,9 +47,9 @@ Mongoose.prototype.initialize = function(options, Logger) {
         deferred.reject(err);
     }, this));
 
-    this.connection.on('disconnected', function() {
+    this.connection.on('disconnected', _.bind(function() {
         this.error(Logger, sprintf('%s disconnected', Logger.formatString(options.serviceId)));
-    });
+    }, this));
 
     this.connection.open(options.host, options.db, options.port, {auto_reconnect: true});
 

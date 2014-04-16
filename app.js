@@ -2,6 +2,12 @@
 module.exports = function() {
 
     var express =       require('express'),
+        bodyParser =    require('body-parser'),
+        methodOverride =require('method-override'),
+        compress =      require('compression'),
+        favicon =       require('static-favicon'),
+        cookieParser =  require('cookie-parser'),
+        errorHandler =  require('errorhandler'),
         http =          require('http'),
         path =          require('path'),
         commander =     require('commander'),
@@ -14,26 +20,20 @@ module.exports = function() {
     var fn = Context.invokeFunction(
                     function(Logger) {
 
-                        app.configure(function(){
-                            app.set('port', process.env.PORT || 3000);
-                            app.set('views', __dirname + '/website/views');
-                            app.set('view engine', 'ejs');
-                            app.use(express.compress());
-                            app.use(express.favicon());
-                            app.use(express.urlencoded());
-                            app.use(express.json());
-                            app.use(express.methodOverride());
-                            app.use(express.cookieParser('your secret here'));
+                        app.set('port', process.env.PORT || 3000);
+                        app.set('views', __dirname + '/website/views');
+                        app.set('view engine', 'ejs');
+                        app.use(compress());
+                        app.use(bodyParser());
+                        app.use(favicon());
+                        app.use(methodOverride());
+                        app.use(cookieParser('your secret here'));
 
-                            require(Context.__src('app/middleware/index'))(Context);
+                        require(Context.__src('app/middleware/index'))(Context);
 
-                            app.use(app.router);
-                            app.use(express.static(path.join(__dirname, '/website/public')));
-                        });
+                        app.use(express.static(path.join(__dirname, '/website/public')));
 
-                        app.configure('development', function(){
-                            app.use(express.errorHandler());
-                        });
+                        app.use(errorHandler());
 
                         require(Context.__src('app/init/index'))(Context);
 
