@@ -45,7 +45,7 @@ GoogleAPI.prototype.initialize = function(options, Logger) {
         throw new Error('Google version missing');
     }
 
-    this.oauth = new OAuth2(options.id, options.secret, options.callback);
+    this.oauth = new OAuth2(config.id, config.secret, config.callback);
 
     var defer = q.defer();
 
@@ -83,7 +83,7 @@ GoogleAPI.prototype.getClientWithTokens = function(accessToken, refreshToken) {
 };
 /**
  * Get the client
- * 
+ *
  * @returns {Promise}
  */
 GoogleAPI.prototype.getClient = function() {

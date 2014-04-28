@@ -13,7 +13,8 @@ module.exports = function(Context) {
 
         _.each(middleware, function(middle) {
             Logger.info(sprintf('%s loading %s', Logger.formatString('MIDDLEWARE'), middle));
-            require(__dirname + '/' + middle)(Context);
+            var fn = require(__dirname + '/' + middle);
+            Context.invoke(fn, {Context: Context});
         });
     });
 };
