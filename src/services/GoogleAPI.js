@@ -10,7 +10,6 @@ var Context =       require('../Context'),
 var GoogleAPI = function() {
     BaseService.call(this, 'GoogleAPI');
     this.service = null;
-    this.oauth = null;
 };
 
 util.inherits(GoogleAPI, BaseService);
@@ -45,8 +44,6 @@ GoogleAPI.prototype.initialize = function(options, Logger) {
         throw new Error('Google version missing');
     }
 
-    this.oauth = new OAuth2(config.id, config.secret, config.callback);
-
     var defer = q.defer();
 
     this.service = googleapis.discover(options.api, options.version);
@@ -62,16 +59,19 @@ GoogleAPI.prototype.initialize = function(options, Logger) {
  * @returns {Promise}
  */
 GoogleAPI.prototype.getClientWithTokens = function(accessToken, refreshToken) {
-    this.oauth.credentials = {
+    var config = Context.getConfig().google;
+
+    var oauth = new OAuth2(config.id, config.secret, config.callback);
+
+    oauth.credentials = {
         access_token: accessToken,
         refresh_token: refreshToken
     };
 
     var defer = q.defer();
     this.service
-        .withAuthClient(this.oauth)
+        .withAuthClient(oauth)
         .execute(_.bind(function(err, client) {
-            this.oauth.credentials = null;
             if (err) {
                 defer.reject(err);
             } else {
