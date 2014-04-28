@@ -40,8 +40,11 @@
         "mysql":                "*",
 
         "facebook-node-sdk":    "*",
+        "googleapis":           "*",
 
         "chai":                 "*",
+        "sinon":                "*",
+        "sinon-chai":           "*",
         "supertest":            "*"
     }
 }
