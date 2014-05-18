@@ -1,4 +1,4 @@
-var GoogleAPI =     require('GoogleAPI'),
+var GoogleAPI =     require('./GoogleAPI'),
     Context =       require('../Context'),
     BaseService =   require(Context.__src('/services/BaseService')),
     util =          require('util'),
@@ -14,7 +14,7 @@ var GoogleCalendarAPI = function() {
     this.service = null;
 };
 
-util.inherits(GoogleAPI, GoogleAPI);
+util.inherits(GoogleCalendarAPI, GoogleAPI);
 
 /**
  * Override the initialize to add in the version and api type
