@@ -7,8 +7,8 @@ var Context =       require('../Context'),
     OAuth2 =        googleapis.auth.OAuth2;
 
 
-var GoogleAPI = function() {
-    BaseService.call(this, 'GoogleAPI');
+var GoogleAPI = function(name) {
+    BaseService.call(this, name || 'GoogleAPI');
     this.service = null;
 };
 
