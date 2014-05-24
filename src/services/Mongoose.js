@@ -38,17 +38,17 @@ Mongoose.prototype.initialize = function(options, Logger) {
     this.connection = mongoose.createConnection();
 
     this.connection.on('open', _.bind(function() {
-        this.info(Logger, sprintf('%s ready', Logger.formatString(options.serviceId)));
+        this.info(Logger, sprintf('id: %s - ready', options.serviceId));
         deferred.resolve();
     }, this));
 
     this.connection.on('error', _.bind(function(err) {
-        this.error(Logger, sprintf('%s %s', Logger.formatString(options.serviceId), err.toString()));
+        this.error(Logger, sprintf('id: %s - error: %s', options.serviceId, err.toString()));
         deferred.reject(err);
     }, this));
 
     this.connection.on('disconnected', _.bind(function() {
-        this.error(Logger, sprintf('%s disconnected', Logger.formatString(options.serviceId)));
+        this.error(Logger, sprintf('id: %s - disconnected', options.serviceId));
     }, this));
 
     this.connection.open(options.host, options.db, options.port, {auto_reconnect: true});

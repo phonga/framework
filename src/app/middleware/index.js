@@ -12,9 +12,9 @@ module.exports = function(Context) {
         var middleware = Context.getConfig().middleware || [];
 
         _.each(middleware, function(middle) {
-            Logger.info(sprintf('%s loading %s', Logger.formatString('MIDDLEWARE'), middle));
             var fn = require(__dirname + '/' + middle);
             Context.invoke(fn, {Context: Context});
+            Logger.info(sprintf('/middleware/%s ready', middle));
         });
     });
 };
