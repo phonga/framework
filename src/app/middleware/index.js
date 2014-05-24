@@ -14,7 +14,7 @@ module.exports = function(Context) {
         _.each(middleware, function(middle) {
             var fn = require(__dirname + '/' + middle);
             Context.invoke(fn, {Context: Context});
-            Logger.info(sprintf('/middleware/%s ready', middle));
+            Logger.info(sprintf('%-20s ready', '/middleware/' + middle));
         });
     });
 };
