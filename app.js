@@ -24,7 +24,10 @@ module.exports = function() {
                         app.set('views', __dirname + '/website/views');
                         app.set('view engine', 'ejs');
                         app.use(compress());
-                        app.use(bodyParser());
+                        app.use(bodyParser.urlencoded({
+                            extended: true
+                        }));
+                        app.use(bodyParser.json());
                         app.use(favicon());
                         app.use(methodOverride());
                         app.use(cookieParser('your secret here'));
